@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Piccaso: a research film</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500&display=block" rel="stylesheet">
+<style>
+  :root { --paper: #f3eee4; --ink: #16151a; --muted: #7a7469; --accent: #e8590c; --blue: #1c7ed6; --card: #fbf8f2; --rule: #ddd5c6; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--paper); }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--paper); color: var(--ink);
+           font-family: Inter, "Segoe UI", sans-serif; }
+  .grain { position: absolute; inset: 0; pointer-events: none; opacity: .10; z-index: 50; mix-blend-mode: multiply;
+           background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>"); }
+  .scene { position: absolute; inset: 0; opacity: 0; visibility: hidden; }
+  .serif { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; }
+  .mono { font-family: "JetBrains Mono", Consolas, monospace; }
+  .acc { color: var(--accent); }
+  .it { font-style: italic; }
+  .label { position: absolute; left: 96px; top: 70px; font-size: 22px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .label b { color: var(--accent); margin-right: 14px; }
+  .h1 { position: absolute; font-size: 84px; line-height: 1.02; letter-spacing: -1.5px; font-weight: 800; }
+  .h2 { position: absolute; font-size: 54px; line-height: 1.08; letter-spacing: -1px; font-weight: 700; }
+  .cap { position: absolute; font-size: 30px; line-height: 1.35; color: #3b3832; }
+  .chip { display: inline-block; padding: 12px 22px; border: 2px solid var(--ink); border-radius: 999px; font-size: 26px; font-weight: 600; background: var(--card); margin: 0 10px 12px 0; }
+  .chip.a { border-color: var(--accent); color: var(--accent); }
+  .panel { position: absolute; background: #fff; box-shadow: 0 18px 40px rgba(40, 30, 10, .16); border-radius: 6px; overflow: hidden; }
+  .panel svg, .panel img { display: block; width: 100%; height: 100%; }
+  .tag { position: absolute; font-size: 22px; font-weight: 600; color: var(--muted); letter-spacing: 1px; }
+  .strip { display: block; border-radius: 4px; box-shadow: 0 8px 22px rgba(40, 30, 10, .14); }
+  .card { position: absolute; width: 330px; height: 150px; background: var(--card); border: 2px solid var(--rule); border-radius: 10px; padding: 18px 20px; }
+  .card .t { font-size: 25px; font-weight: 700; line-height: 1.15; }
+  .card .s { font-size: 19px; color: var(--muted); margin-top: 8px; }
+  .bar-row { position: absolute; left: 640px; height: 54px; display: flex; align-items: center; }
+  .bar-lab { position: absolute; left: -560px; width: 530px; text-align: right; font-size: 28px; font-weight: 600; }
+  .bar { height: 40px; background: var(--accent); border-radius: 4px; width: 0; }
+  .bar.dim { background: #b9b2a5; }
+  .bar-val { margin-left: 16px; font-size: 30px; font-weight: 800; }
+  .stat { position: absolute; background: var(--card); border: 2px solid var(--ink); border-radius: 14px; padding: 22px 28px; }
+  .stat .v { font-size: 76px; font-weight: 800; color: var(--accent); letter-spacing: -2px; line-height: 1; }
+  .stat .l { font-size: 24px; margin-top: 8px; color: #3b3832; line-height: 1.3; }
+  .stamp { position: absolute; font-family: "Instrument Serif", serif; font-style: italic; color: var(--accent); font-size: 150px; transform: rotate(-8deg); }
+  #progress { position: absolute; left: 0; bottom: 0; height: 8px; background: var(--accent); width: 0; z-index: 60; }
+  .dot { position: absolute; border-radius: 50%; background: var(--ink); }
+  .px { position: absolute; }
+  .wipe { position: absolute; inset: 0; z-index: 55; pointer-events: none; visibility: hidden; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- S1 hook -->
+  <div class="scene" id="s1">
+    <div class="h2" id="s1a" style="left:150px; top:120px; width:760px">A diffusion model fills in every <span class="acc">pixel</span>.</div>
+    <div class="h2" id="s1b" style="left:1010px; top:120px; width:760px">A painter makes <span class="acc">strokes</span>.</div>
+    <div class="panel" id="s1px" style="left:230px; top:300px; width:560px; height:560px; background:#ddd"></div>
+    <div class="panel" id="s1st" style="left:1090px; top:300px; width:560px; height:560px"></div>
+    <div class="cap mono" id="s1c1" style="left:230px; top:890px; width:560px; text-align:center; font-size:40px"><span id="n_px">0</span> numbers</div>
+    <div class="cap mono" id="s1c2" style="left:1090px; top:890px; width:560px; text-align:center; font-size:40px"><span id="n_st">0</span> strokes</div>
+    <div class="h1 serif" id="s1q" style="left:0; width:1920px; top:430px; text-align:center; font-size:150px; font-weight:400; letter-spacing:-2px; opacity:0">What if a model <span class="acc it">painted</span>?</div>
+  </div>
+
+  <!-- S2 title -->
+  <div class="scene" id="s2">
+    <div class="serif" id="s2t" style="position:absolute; left:0; width:1920px; top:250px; text-align:center; font-size:300px; line-height:1; letter-spacing:-6px">Piccaso</div>
+    <svg id="s2u" style="position:absolute; left:560px; top:560px" width="800" height="80" viewBox="0 0 800 80"><path d="M10 52 Q 260 10 470 40 T 790 30" stroke="#e8590c" stroke-width="22" stroke-linecap="round" fill="none" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>
+    <div class="cap" id="s2s" style="left:0; width:1920px; top:660px; text-align:center; font-size:40px">an open research diary: can a tiny model learn to <span class="serif it acc" style="font-size:48px">paint</span> from text?</div>
+    <div id="s2c" style="position:absolute; left:0; width:1920px; top:770px; text-align:center">
+      <span class="chip">102M parameters</span><span class="chip">361 strokes</span><span class="chip">232k images</span><span class="chip a">~$65 of GPUs</span>
+    </div>
+  </div>
+
+  <!-- S3 photos into strokes -->
+  <div class="scene" id="s3">
+    <div class="label"><b>01</b>turning photos into strokes</div>
+    <div class="panel" id="s3real" style="left:150px; top:200px; width:600px; height:600px"><img id="s3img" src="a/fitted_photo_real.jpg" style="object-fit:cover"></div>
+    <div class="tag" style="left:150px; top:820px">a real photo</div>
+    <div class="panel" id="s3st" style="left:870px; top:200px; width:600px; height:600px"></div>
+    <div class="tag" style="left:870px; top:820px">its strokes, fitted by gradient descent</div>
+    <div style="position:absolute; left:1520px; top:230px; width:320px">
+      <div class="mono" style="font-size:96px; font-weight:500; color:var(--accent); line-height:1" id="s3n">0</div>
+      <div style="font-size:28px; margin-top:6px; font-weight:600">strokes</div>
+      <div id="s3lv" style="font-size:26px; color:var(--muted); margin-top:20px; line-height:1.5">
+        <div id="lv1">16 &middot; coarse 4x4</div><div id="lv2">+49 &middot; 7x7</div><div id="lv3">+100 &middot; fine 10x10</div><div id="lv4">+196 &middot; detail 14x14</div>
+      </div>
+    </div>
+    <div id="s3chips" style="position:absolute; left:150px; top:900px; width:1700px">
+      <span style="font-size:28px; font-weight:700; margin-right:18px">1 stroke = 11 numbers</span>
+      <span class="chip mono">x0 y0</span><span class="chip mono">x1 y1</span><span class="chip mono">x2 y2</span><span class="chip mono">width</span><span class="chip mono">r g b</span><span class="chip mono a">on / off</span>
+    </div>
+  </div>
+
+  <!-- S4 papers -->
+  <div class="scene" id="s4">
+    <div class="label"><b>02</b>reading the room</div>
+    <div class="h2" style="left:96px; top:130px">We read the papers first.</div>
+    <div id="cards"></div>
+    <div class="cap" id="s4t" style="left:96px; top:880px; width:1700px; font-size:40px; color:var(--ink)">Everyone turns a <i>photo</i> into strokes. Nobody paints from a <span class="acc">prompt</span> with a tiny model.</div>
+  </div>
+
+  <!-- S5 attempt one -->
+  <div class="scene" id="s5">
+    <div class="label"><b>03</b>attempt one</div>
+    <div class="h2" id="s5h" style="left:96px; top:130px">Write strokes like words?</div>
+    <div class="cap" id="s5c" style="left:96px; top:205px">a small GPT, one number at a time &middot; target on the left</div>
+    <div id="s5strips" style="position:absolute; left:96px; top:290px">
+      <img class="strip" src="a/gate_cat.jpg" style="width:800px; margin-bottom:18px"><img class="strip" src="a/gate_house.jpg" style="width:800px; margin-bottom:18px"><img class="strip" src="a/gate_face.jpg" style="width:800px">
+    </div>
+    <div class="stamp" id="s5stamp" style="left:520px; top:500px">scribbles.</div>
+    <div class="h2" id="s5fix" style="left:1040px; top:130px; width:820px">Fix: give every stroke <span class="acc">a seat</span>.</div>
+    <div id="slots" style="position:absolute; left:1100px; top:270px; width:560px; height:560px; background:var(--card); border:2px solid var(--rule); border-radius:8px"></div>
+    <div class="cap mono" id="s5sum" style="left:1100px; top:860px; width:700px; font-size:34px">16 + 49 + 100 + 196 = <b class="acc">361</b></div>
+    <div class="cap" id="s5sub" style="left:1100px; top:920px; width:760px; font-size:26px">fixed slots &middot; one direction per curve &middot; an on/off bit</div>
+  </div>
+
+  <!-- S6 A vs B -->
+  <div class="scene" id="s6">
+    <div class="label"><b>04</b>two ways to paint</div>
+    <div class="h2" style="left:96px; top:140px; width:820px"><span class="acc">A</span> &middot; one stroke at a time</div>
+    <div class="cap" style="left:96px; top:212px; font-size:26px">a causal transformer that watches its own canvas</div>
+    <div class="h2" style="left:1000px; top:140px; width:820px"><span class="acc">B</span> &middot; all 361 at once</div>
+    <div class="cap" style="left:1000px; top:212px; font-size:26px">denoise the whole set together (set diffusion)</div>
+    <div id="s6a" style="position:absolute; left:96px; top:280px"><img class="strip" src="a/armA_house.jpg" style="width:800px; margin-bottom:14px"><img class="strip" src="a/armA_apple.jpg" style="width:800px; margin-bottom:14px"><img class="strip" src="a/armA_sunset.jpg" style="width:800px"></div>
+    <div id="s6b" style="position:absolute; left:1000px; top:280px"><img class="strip" src="a/armB_house.jpg" style="width:800px; margin-bottom:14px"><img class="strip" src="a/armB_apple.jpg" style="width:800px; margin-bottom:14px"><img class="strip" src="a/armB_sunset.jpg" style="width:800px"></div>
+    <div class="h1 serif" id="s6w" style="left:0; width:1920px; top:880px; text-align:center; font-size:84px; font-weight:400">B wins. <span class="it acc">Every single time.</span></div>
+  </div>
+
+  <!-- S7 levers -->
+  <div class="scene" id="s7">
+    <div class="label"><b>05</b>what actually moved the needle</div>
+    <div class="h2" style="left:96px; top:130px">Every fix, measured on its own.</div>
+    <div id="bars" style="position:absolute; left:0; top:250px; width:1920px"></div>
+    <div class="cap" id="s7t" style="left:96px; top:930px; font-size:38px; color:var(--ink)">The <span class="acc">cheap</span> fixes beat the expensive ones. More steps did nothing.</div>
+  </div>
+
+  <!-- S8 data -->
+  <div class="scene" id="s8">
+    <div class="label"><b>06</b>data: captions beat volume</div>
+    <div class="h2" style="left:96px; top:130px; width:900px">Teach it with captions a painting <span class="acc">can</span> show.</div>
+    <div class="serif" id="s8type" style="position:absolute; left:96px; top:320px; width:820px; font-size:46px; line-height:1.25; color:#2a2722"></div>
+    <div class="tag" style="left:96px; top:270px">PixelProse caption (Gemini)</div>
+    <div class="panel" id="s8p1" style="left:1040px; top:250px; width:380px; height:380px"><img src="a/pp_real_0.jpg"><img src="a/pp_strokes_0.jpg" style="position:absolute; inset:0" class="ovl"></div>
+    <div class="panel" id="s8p2" style="left:1450px; top:250px; width:380px; height:380px"><img src="a/pp_real_2.jpg"><img src="a/pp_strokes_2.jpg" style="position:absolute; inset:0" class="ovl"></div>
+    <div class="panel" id="s8p3" style="left:1040px; top:660px; width:380px; height:200px"><img src="a/pp_real_3.jpg" style="object-fit:cover"><img src="a/pp_strokes_3.jpg" style="position:absolute; inset:0; object-fit:cover" class="ovl"></div>
+    <div class="panel" id="s8p4" style="left:1450px; top:660px; width:380px; height:200px"><img src="a/pp_real_4.jpg" style="object-fit:cover"><img src="a/pp_strokes_4.jpg" style="position:absolute; inset:0; object-fit:cover" class="ovl"></div>
+    <div id="s8flow" class="mono" style="position:absolute; left:96px; top:900px; font-size:34px; width:1800px">
+      <span id="f1">418,981 links</span><span class="acc" id="f2"> &rarr; 309,512 painted</span><span id="f3"> &rarr; <b>232,134 kept</b></span>
+      <div id="f4" style="font-family:Inter; font-size:26px; color:var(--muted); margin-top:8px">kept only if the strokes still match the caption</div>
+    </div>
+  </div>
+
+  <!-- S9 train -->
+  <div class="scene" id="s9">
+    <div class="label"><b>07</b>train</div>
+    <div id="s9stats" style="position:absolute; left:96px; top:140px; width:1750px; display:flex; gap:26px">
+      <div class="stat" style="position:relative"><div class="v">8x</div><div class="l">RTX 5090</div></div>
+      <div class="stat" style="position:relative"><div class="v">~1 h</div><div class="l">final run</div></div>
+      <div class="stat" style="position:relative"><div class="v mono" id="n_seen">0</div><div class="l">pictures seen</div></div>
+      <div class="stat" style="position:relative"><div class="v">102M</div><div class="l">parameters</div></div>
+    </div>
+    <div class="cap" style="left:96px; top:420px; font-size:30px; color:var(--ink)">"a bird perched on a branch" &middot; same prompt, same seed, more training</div>
+    <div id="evo" style="position:absolute; left:96px; top:480px; width:1300px; height:330px">
+      <img class="strip" id="e1" src="a/evo_bird_2500.jpg" style="position:absolute; width:1300px">
+      <img class="strip" id="e2" src="a/evo_bird_5000.jpg" style="position:absolute; width:1300px; opacity:0">
+      <img class="strip" id="e3" src="a/evo_bird_final.jpg" style="position:absolute; width:1300px; opacity:0">
+    </div>
+    <div class="mono" id="s9step" style="position:absolute; left:1440px; top:560px; font-size:44px; color:var(--accent)">step 2,500</div>
+  </div>
+
+  <!-- S10 results -->
+  <div class="scene" id="s10">
+    <div class="label"><b>08</b>results: unseen prompts</div>
+    <div id="wall" style="position:absolute; left:96px; top:130px; width:1100px; height:860px"></div>
+    <div class="stat" id="r1" style="left:1270px; top:150px; width:560px"><div class="v">31%</div><div class="l">picks its own caption out of 200 it never saw (chance: 0.5%)</div></div>
+    <div class="stat" id="r2" style="left:1270px; top:420px; width:560px"><div class="v">97%</div><div class="l">right colour on a fixed prompt benchmark</div></div>
+    <div class="stat" id="r3" style="left:1270px; top:690px; width:560px"><div class="v">seen = unseen</div><div class="l">same score on training and held-out captions: it generalises</div></div>
+  </div>
+
+  <!-- S11 honest check -->
+  <div class="scene" id="s11">
+    <div class="label"><b>09</b>honest check</div>
+    <div class="h2" style="left:96px; top:130px">Next to a real image model?</div>
+    <div class="cap" style="left:96px; top:300px; font-size:34px; color:var(--ink)">Google MobileDiffusion</div>
+    <div id="hb1" style="position:absolute; left:96px; top:350px; height:70px; width:0; background:var(--ink); border-radius:4px"></div>
+    <div class="mono" id="hv1" style="position:absolute; left:96px; top:432px; font-size:30px">150,000,000 images</div>
+    <div class="cap" style="left:96px; top:540px; font-size:34px; color:var(--ink)">Piccaso-0.1</div>
+    <div id="hb2" style="position:absolute; left:96px; top:590px; height:70px; width:0; background:var(--accent); border-radius:4px"></div>
+    <div class="mono" id="hv2" style="position:absolute; left:96px; top:672px; font-size:30px">232,134 images &middot; 650x less &middot; ~$65 total</div>
+    <div class="h1 serif" id="s11t" style="left:96px; top:800px; font-size:76px; font-weight:400">Early. Under-trained. <span class="it acc">The curves were still going up.</span></div>
+  </div>
+
+  <!-- S12 next -->
+  <div class="scene" id="s12">
+    <div class="label"><b>10</b>what's next</div>
+    <div class="h2" style="left:96px; top:130px">Where this goes next.</div>
+    <div id="nexts" style="position:absolute; left:96px; top:300px; width:1700px; line-height:1">
+      <span class="chip" style="font-size:40px; padding:18px 30px">few-step distillation: paint on a laptop in seconds</span><br>
+      <span class="chip" style="font-size:40px; padding:18px 30px">1M+ more PixelProse images</span><br>
+      <span class="chip" style="font-size:40px; padding:18px 30px">512 px finishing strokes + a cascade finisher</span><br>
+      <span class="chip" style="font-size:40px; padding:18px 30px">opacity and soft brushes</span><br>
+      <span class="chip a" style="font-size:40px; padding:18px 30px">vector output all the way: every painting is an SVG</span>
+    </div>
+  </div>
+
+  <!-- S13 end -->
+  <div class="scene" id="s13">
+    <div class="panel" id="endp" style="left:120px; top:120px; width:840px; height:840px"></div>
+    <div class="serif" id="s13t" style="position:absolute; left:1040px; top:300px; font-size:120px; line-height:1">Thanks for<br><span class="it acc">watching.</span></div>
+    <div id="s13l" style="position:absolute; left:1040px; top:600px; font-size:28px; line-height:1.7">
+      <div><b>weights</b> &middot; huggingface.co/shing-dev/Piccaso-0.1</div>
+      <div><b>code, notebook, paper</b> &middot; github.com/shing1Sks/piccaso</div>
+      <div style="color:var(--muted); margin-top:16px">Piccaso-0.1 &middot; early research preview &middot; every stroke on screen was painted by the model or fitted by the pipeline</div>
+    </div>
+  </div>
+
+  <div id="wipes"></div>
+  <div class="grain"></div>
+  <div id="progress"></div>
+</div>
+
+<script src="gsap.min.js"></script>
+<script src="assets.js"></script>
+<script>
+const P = window.PAINTINGS || {};
+const NS = "http://www.w3.org/2000/svg";
+function makeSVG(holder, name) {
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("viewBox", "0 0 512 512");
+  svg.setAttribute("preserveAspectRatio", "xMidYMid slice");
+  const bg = document.createElementNS(NS, "rect");
+  bg.setAttribute("width", 512); bg.setAttribute("height", 512); bg.setAttribute("fill", (P[name] && P[name][0]) ? P[name][0][7] : "#ffffff");
+  svg.appendChild(bg);
+  const paths = (P[name] || []).map(s => {
+    const p = document.createElementNS(NS, "path");
+    p.setAttribute("d", `M${s[0]} ${s[1]} Q${s[2]} ${s[3]} ${s[4]} ${s[5]}`);
+    p.setAttribute("stroke", s[7]); p.setAttribute("stroke-width", s[6]);
+    p.setAttribute("stroke-linecap", "round"); p.setAttribute("fill", "none");
+    p.setAttribute("pathLength", "1"); p.setAttribute("stroke-dasharray", "1"); p.setAttribute("stroke-dashoffset", "1");
+    p.style.opacity = 0;
+    svg.appendChild(p); return p;
+  });
+  holder.appendChild(svg);
+  return paths;
+}
+// paint strokes [a, b) between t0 and t1, coarse to fine, each stroke drawn in `each` seconds
+function paintRange(tl, paths, a, b, t0, t1, each = 0.18) {
+  const n = Math.max(1, b - a), span = Math.max(0.01, t1 - t0 - each);
+  for (let i = a; i < b && i < paths.length; i++) {
+    const at = t0 + span * (i - a) / n;
+    tl.set(paths[i], { opacity: 1 }, at);
+    tl.to(paths[i], { attr: { "stroke-dashoffset": 0 }, duration: each, ease: "power2.out" }, at);
+  }
+}
+function counter(tl, el, to, t0, dur, fmt = v => Math.round(v).toLocaleString("en-US"), from = 0) {
+  const o = { v: from };
+  tl.to(o, { v: to, duration: dur, ease: "power2.out", onUpdate: () => { el.textContent = fmt(o.v); } }, t0);
+}
+function show(tl, id, t0, t1) {
+  tl.fromTo("#" + id, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, t0);
+  tl.to("#" + id, { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, t1 - 0.4);
+}
+const $ = id => document.getElementById(id);
+const tl = gsap.timeline({ paused: true });
+const T = { s1: [0, 7.5], s2: [7.5, 13], s3: [13, 24.5], s4: [24.5, 31.5], s5: [31.5, 41.5], s6: [41.5, 51.5], s7: [51.5, 60.5],
+            s8: [60.5, 69.5], s9: [69.5, 77.5], s10: [77.5, 86.5], s11: [86.5, 92.5], s12: [92.5, 97.5], s13: [97.5, 106] };
+for (const k in T) { if (k === "s13") tl.fromTo("#s13", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45 }, T[k][0]); else show(tl, k, T[k][0], T[k][1]); }
+
+// ---- S1: pixels vs strokes, same photo
+const px = $("s1px"), N = 28, cs = 560 / N, cols = (window.PIXELS || []);
+const cells = [];
+for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+  const d = document.createElement("div"); d.className = "px";
+  d.style.cssText = `left:${x * cs}px; top:${y * cs}px; width:${cs + .5}px; height:${cs + .5}px; background:${cols[y * N + x] || "#999"}; opacity:0`;
+  px.appendChild(d); cells.push(d);
+}
+tl.to(cells, { opacity: 1, duration: 0.05, stagger: { each: 3.2 / cells.length } }, 0.7);
+counter(tl, $("n_px"), 196608, 0.7, 3.4);
+const s1p = makeSVG($("s1st"), "fitted_photo");
+paintRange(tl, s1p, 0, s1p.length, 1.6, 4.6, 0.25);
+counter(tl, $("n_st"), 361, 1.6, 3.0);
+tl.fromTo("#s1b", { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.5 }, 1.3);
+tl.fromTo("#s1a", { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.5 }, 0.2);
+tl.to(["#s1a", "#s1b", "#s1px", "#s1st", "#s1c1", "#s1c2"], { autoAlpha: 0, y: -30, duration: 0.5, ease: "power2.in" }, 5.0);
+tl.fromTo("#s1q", { opacity: 0, scale: 0.92 }, { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.6)" }, 5.4);
+
+// ---- S2: title
+tl.fromTo("#s2t", { opacity: 0, y: 40, letterSpacing: "20px" }, { opacity: 1, y: 0, letterSpacing: "-6px", duration: 1.0, ease: "expo.out" }, 7.7);
+tl.to("#s2u path", { attr: { "stroke-dashoffset": 0 }, duration: 0.8, ease: "power2.inOut" }, 8.5);
+tl.fromTo("#s2s", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 }, 9.2);
+tl.fromTo("#s2c .chip", { opacity: 0, y: 24, scale: .9 }, { opacity: 1, y: 0, scale: 1, duration: 0.4, stagger: 0.18, ease: "back.out(2)" }, 9.9);
+
+// ---- S3: the fitted strokes appear level by level
+const s3p = makeSVG($("s3st"), "fitted_photo");
+const levels = [[0, 16, 13.8, 15.0], [16, 65, 15.3, 16.6], [65, 165, 16.9, 18.6], [165, 361, 18.9, 21.4]];
+const lvl = ["lv1", "lv2", "lv3", "lv4"], targets = [16, 65, 165, 361];
+gsap.set(lvl.map(i => "#" + i), { opacity: 0.25 });
+levels.forEach((L, k) => {
+  paintRange(tl, s3p, L[0], L[1], L[2], L[3], k < 2 ? 0.45 : 0.25);
+  counter(tl, $("s3n"), targets[k], L[2], L[3] - L[2], undefined, k ? targets[k - 1] : 0);
+  tl.to("#" + lvl[k], { opacity: 1, color: "#16151a", duration: 0.2 }, L[2]);
+});
+tl.fromTo("#s3chips > *", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.3, stagger: 0.12 }, 21.6);
+tl.fromTo("#s3real", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.6 }, 13.2);
+
+// ---- S4: papers
+const papers = [["Learning to Paint", "Huang et al. &middot; ICCV 2019"], ["Paint Transformer", "Liu et al. &middot; ICCV 2021"],
+  ["Stylized Neural Painting", "Zou et al. &middot; CVPR 2021"], ["CLIPDraw", "Frans et al. &middot; 2021"],
+  ["Collaborative Neural Painting", "Dall'Asen et al. &middot; 2023"], ["Sketch-RNN", "Ha &amp; Eck &middot; 2017"],
+  ["DiT: diffusion transformers", "Peebles &amp; Xie &middot; ICCV 2023"], ["Better captions (DALL-E 3)", "Betker et al. &middot; 2023"],
+  ["PixelProse", "Singla et al. &middot; 2024"], ["Long-CLIP", "Zhang et al. &middot; ECCV 2024"]];
+const cardsEl = $("cards");
+papers.forEach((p, i) => {
+  const c = document.createElement("div"); c.className = "card";
+  c.style.left = (96 + (i % 5) * 352) + "px"; c.style.top = (280 + Math.floor(i / 5) * 190) + "px";
+  c.innerHTML = `<div class="t">${p[0]}</div><div class="s">${p[1]}</div>`;
+  cardsEl.appendChild(c);
+  tl.fromTo(c, { opacity: 0, y: 60, rotation: (i % 2 ? 4 : -4) }, { opacity: 1, y: 0, rotation: (i % 3 - 1) * 1.2, duration: 0.5, ease: "back.out(1.7)" }, 25.0 + i * 0.22);
+});
+tl.fromTo("#s4t", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6 }, 28.2);
+
+// ---- S5: scribbles, then slots
+tl.fromTo("#s5strips img", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.45, stagger: 0.25 }, 31.9);
+tl.fromTo("#s5stamp", { opacity: 0, scale: 2.2 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2.5)" }, 34.2);
+tl.fromTo("#s5fix", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 }, 36.0);
+const slots = $("slots"), grids = [[4, 30, "#16151a"], [7, 18, "#16151a"], [10, 11, "#7a7469"], [14, 6, "#e8590c"]];
+grids.forEach((g, k) => {
+  const [n, r, col] = g, dots = [];
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    const d = document.createElement("div"); d.className = "dot";
+    const cx = (x + .5) / n * 560, cy = (y + .5) / n * 560;
+    d.style.cssText = `left:${cx - r / 2}px; top:${cy - r / 2}px; width:${r}px; height:${r}px; background:${col}; opacity:0`;
+    slots.appendChild(d); dots.push(d);
+  }
+  tl.fromTo(dots, { opacity: 0, scale: 0 }, { opacity: k === 0 ? 1 : 0.85, scale: 1, duration: 0.25, stagger: { each: 0.5 / dots.length, from: "center" } }, 36.6 + k * 0.85);
+});
+tl.fromTo("#s5sum", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 40.0);
+tl.fromTo("#s5sub", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 40.4);
+tl.fromTo(["#s5h", "#s5c"], { opacity: 0 }, { opacity: 1, duration: 0.4 }, 31.6);
+
+// ---- S6: A vs B
+tl.fromTo("#s6a img", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4, stagger: 0.25 }, 42.2);
+tl.fromTo("#s6b img", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4, stagger: 0.25 }, 43.4);
+tl.to("#s6a", { opacity: 0.35, filter: "grayscale(1)", duration: 0.6 }, 47.2);
+tl.fromTo("#s6w", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease: "back.out(1.5)" }, 47.4);
+
+// ---- S7: levers
+const levers = [["guidance 2 → 4", 29], ["model 22M → 58M", 14], ["a missing learning-rate decay", 12], ["base + detail strokes together", 9],
+  ["self-conditioning", 8], ["per-word text attention", 5], ["2x more (noisy) data", 4], ["250 denoising steps instead of 25", 0]];
+const barsEl = $("bars");
+levers.forEach((l, i) => {
+  const r = document.createElement("div"); r.className = "bar-row"; r.style.top = (i * 78) + "px";
+  r.innerHTML = `<div class="bar-lab">${l[0]}</div><div class="bar ${l[1] < 6 ? "dim" : ""}"></div><div class="bar-val">+${l[1]}%</div>`;
+  barsEl.appendChild(r);
+  tl.fromTo(r, { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.3 }, 52.0 + i * 0.32);
+  tl.fromTo(r.querySelector(".bar"), { width: 0 }, { width: Math.max(6, l[1] * 34), duration: 0.7, ease: "power3.out" }, 52.1 + i * 0.32);
+});
+tl.fromTo("#s7t", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 }, 56.2);
+
+// ---- S8: data
+const meta = (window.ASSET_META || []).find(m => m.name === "fitted");
+const capText = meta ? meta.caption : "A train traveling through a tunnel of cherry blossom trees. The train is red and black with white writing on the front.";
+const typeEl = $("s8type"), tw = { n: 0 };
+const capClean = capText.replace(/^this image (displays|shows)\s*:?\s*/i, "");
+const fullCap = capClean.length > 260 ? capClean.slice(0, capClean.lastIndexOf(".", 260) + 1) : capClean;
+tl.to(tw, { n: fullCap.length, duration: 3.6, ease: "none", onUpdate: () => { typeEl.textContent = fullCap.slice(0, Math.round(tw.n)); } }, 61.0);
+["#s8p1", "#s8p2", "#s8p3", "#s8p4"].forEach((id, i) => {
+  tl.fromTo(id, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4 }, 61.0 + i * 0.2);
+  tl.fromTo(id + " .ovl", { opacity: 0 }, { opacity: 1, duration: 0.6 }, 63.0 + i * 0.5);
+});
+tl.fromTo(["#f1", "#f2", "#f3", "#f4"], { opacity: 0 }, { opacity: 1, duration: 0.4, stagger: 0.55 }, 65.4);
+
+// ---- S9: train
+tl.fromTo("#s9stats .stat", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.35, stagger: 0.15 }, 69.8);
+counter(tl, $("n_seen"), 9.2, 70.2, 1.6, v => v.toFixed(1) + "M");
+tl.fromTo("#e1", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 71.2);
+tl.to("#e2", { opacity: 1, duration: 0.5 }, 73.0); tl.set("#s9step", { textContent: "step 5,000" }, 73.0);
+tl.to("#e3", { opacity: 1, duration: 0.5 }, 74.8); tl.set("#s9step", { textContent: "final" }, 74.8);
+tl.fromTo("#s9step", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 71.2);
+
+// ---- S10: results wall (live paintings) + stats
+const wall = $("wall"), names = ["lighthouse", "ship", "city", "sunflowers", "fruit", "room", "portrait", "bus"];
+const prompts = { lighthouse: "a lighthouse on a cliff at sunset", ship: "a sailing ship on a stormy sea", city: "a city street at night",
+  sunflowers: "a field of sunflowers", fruit: "a bowl of oranges", room: "a cozy living room", portrait: "an old man with a beard", bus: "a red bus" };
+names.forEach((nm, i) => {
+  const cell = document.createElement("div");
+  cell.className = "panel"; cell.style.cssText = `left:${(i % 4) * 275}px; top:${Math.floor(i / 4) * 430}px; width:255px; height:255px`;
+  wall.appendChild(cell);
+  const cap = document.createElement("div"); cap.className = "tag";
+  cap.style.cssText = `left:${(i % 4) * 275}px; top:${Math.floor(i / 4) * 430 + 266}px; width:255px; font-size:20px; line-height:1.3; color:#3b3832`;
+  cap.textContent = prompts[nm]; wall.appendChild(cap);
+  const ps = makeSVG(cell, "paint_" + nm);
+  paintRange(tl, ps, 0, ps.length, 77.9 + i * 0.25, 81.6 + i * 0.25, 0.2);
+});
+tl.fromTo(["#r1", "#r2", "#r3"], { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.45, stagger: 0.9 }, 80.6);
+
+// ---- S11: honest check
+tl.to("#hb1", { width: 1720, duration: 1.0, ease: "power3.out" }, 87.2);
+tl.to("#hb2", { width: 6, duration: 0.6, ease: "power3.out" }, 88.4);
+tl.fromTo(["#hv1", "#hv2"], { opacity: 0 }, { opacity: 1, duration: 0.4, stagger: 1.0 }, 87.6);
+tl.fromTo("#s11t", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6 }, 89.6);
+
+// ---- S12: next
+tl.fromTo("#nexts .chip", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.35, stagger: 0.45, ease: "back.out(1.6)" }, 93.0);
+
+// ---- S13: the end card paints itself
+const endp = makeSVG($("endp"), "paint_lighthouse");
+paintRange(tl, endp, 0, endp.length, 97.8, 102.6, 0.3);
+tl.fromTo("#s13t", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" }, 100.2);
+tl.fromTo("#s13l > div", { opacity: 0 }, { opacity: 1, duration: 0.4, stagger: 0.35 }, 101.4);
+
+// brush-stroke wipes: a fat stroke paints over the frame, the scene swaps underneath, the stroke lifts off
+[[7.5, "#e8590c"], [24.5, "#16151a"], [41.5, "#e8590c"], [60.5, "#1c7ed6"], [77.5, "#16151a"], [97.5, "#e8590c"]].forEach(([b, col]) => {
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("class", "wipe"); svg.setAttribute("viewBox", "0 0 1920 1080"); svg.setAttribute("width", 1920); svg.setAttribute("height", 1080);
+  const p = document.createElementNS(NS, "path");
+  p.setAttribute("d", "M-420 110 C 600 40, 1300 180, 2340 100 L -420 540 C 600 470, 1300 610, 2340 530 L -420 975 C 600 905, 1300 1045, 2340 965");
+  p.setAttribute("stroke", col); p.setAttribute("stroke-width", 500); p.setAttribute("fill", "none"); p.setAttribute("stroke-linecap", "round");
+  p.setAttribute("stroke-linejoin", "round"); p.setAttribute("pathLength", "1"); p.setAttribute("stroke-dasharray", "1"); p.setAttribute("stroke-dashoffset", "1");
+  svg.appendChild(p); $("wipes").appendChild(svg);
+  tl.set(svg, { autoAlpha: 1 }, b - 0.5);
+  tl.fromTo(p, { attr: { "stroke-dashoffset": 1 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.5, ease: "power2.in", immediateRender: false }, b - 0.5);
+  tl.to(p, { attr: { "stroke-dashoffset": -1 }, duration: 0.5, ease: "power2.out" }, b + 0.05);
+  tl.set(svg, { autoAlpha: 0 }, b + 0.6);
+});
+
+// journey line
+tl.fromTo("#progress", { width: 0 }, { width: 1920, duration: 106, ease: "none" }, 0);
+tl.to({}, { duration: 0.01 }, 106);
+
+window.DURATION = 106;
+window.seek = t => { tl.seek(t, false); };
+const imgs = [...document.images].map(im => im.decode ? im.decode().catch(() => {}) : Promise.resolve());
+window.ready = Promise.all([document.fonts.ready, ...imgs]);
+if (!location.search.includes("render")) window.ready.then(() => tl.play(0));
+</script>
+</body>
+</html>
