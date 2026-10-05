@@ -1,0 +1,53 @@
+{
+ "ckpt": "ckpt.pt",
+ "steps": 25,
+ "cfg": 3.0,
+ "device": "NVIDIA GeForce RTX 5090",
+ "n_train_items": 220528,
+ "n_heldout_items": 11606,
+ "sets": {
+  "seen": {
+   "n": 200,
+   "real_picture": {
+    "top1": 0.965,
+    "gap": 0.1913
+   },
+   "fitted_strokes": {
+    "top1": 0.835,
+    "gap": 0.1424
+   },
+   "generated": {
+    "top1": 0.285,
+    "gap": 0.0723
+   }
+  },
+  "unseen": {
+   "n": 200,
+   "real_picture": {
+    "top1": 0.98,
+    "gap": 0.1943
+   },
+   "fitted_strokes": {
+    "top1": 0.875,
+    "gap": 0.1464
+   },
+   "generated": {
+    "top1": 0.31,
+    "gap": 0.0693
+   }
+  },
+  "docci": {
+   "n": 200,
+   "real_picture": {
+    "top1": 0.8,
+    "gap": 0.1512
+   },
+   "generated": {
+    "top1": 0.095,
+    "gap": 0.0464
+   }
+  }
+ },
+ "seconds_per_picture": 0.1139,
+ "batch": 50
+}
