@@ -10,12 +10,15 @@ PixelProse photo after the stroke-fitting pipeline. The strips in `a/` are cropp
 | `make_assets.py` | paints the SVGs with the released model and fits one real photo (CPU is fine) |
 | `build_assets_js.py` | packs the SVG strokes into `assets.js` so the page can draw them stroke by stroke |
 | `render.cjs` | seeks the timeline frame by frame and pipes screenshots into ffmpeg |
+| `make_music.py` | the soundtrack, synthesised from scratch in numpy (120 bpm, no samples), with sound effects timed to the animation |
 
 ```bash
 open index.html                      # plays in the browser
 npm i playwright-core                # plus ffmpeg on PATH and Chrome or Edge
 PW_CORE=./node_modules/playwright-core node render.cjs --size 1920x1080 --channel msedge --stills 7.4,24.3,104
 PW_CORE=./node_modules/playwright-core node render.cjs --size 1920x1080 --channel msedge --out piccaso.mp4
+python make_music.py   # -> music.wav
+ffmpeg -i piccaso.mp4 -i music.wav -map 0:v -map 1:a -c:v copy -af loudnorm=I=-14:TP=-1 -c:a aac -b:a 192k -shortest piccaso-sound.mp4
 ```
 
 Two gotchas we hit, fixed in `index.html`:

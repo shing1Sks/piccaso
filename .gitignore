@@ -10,3 +10,4 @@ paper/_*.png
 video/*.mp4
 video/still-*.jpg
 video/_*
+video/*.wav
