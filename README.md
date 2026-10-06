@@ -18,6 +18,7 @@ The result so far is **Piccaso-0.1**, a 102M-parameter text-to-stroke diffusion 
 
 - **Paper / report:** [`paper/piccaso-0.1.pdf`](paper/piccaso-0.1.pdf)
 - **Weights:** [huggingface.co/shing-dev/Piccaso-0.1](https://huggingface.co/shing-dev/Piccaso-0.1)
+- **The film (1:46):** [the whole journey as a short research video](https://github.com/shing1Sks/piccaso/releases/download/v0.1/piccaso-research-journey.mp4), source in [`video/`](video/)
 - **Lab notebook:** [`notebook/`](notebook/) (19 notes, in order, every plan, result and decision)
 
 ## The idea in one picture
@@ -102,6 +103,7 @@ Writes a 512 px PNG and the real SVG (361 `<path>` strokes) per painting. Downlo
 | `src/experiments/` | earlier experiments: format benchmarks, the failed GPT gate, memorisation test, detail model, captioning |
 | `runbooks/` | the shell scripts that drove the 8-GPU runs |
 | `results/`, `figures/` | final evaluation outputs and every figure |
+| `video/` | the research film: one animated page, a frame-by-frame renderer and a synthesised soundtrack |
 
 ## What's next
 
