@@ -1,0 +1,12 @@
+torch>=2.3
+open_clip_torch
+ftfy
+regex
+safetensors
+huggingface_hub
+pillow
+numpy
+# data pipeline / training only
+pyarrow
+pandas
+matplotlib

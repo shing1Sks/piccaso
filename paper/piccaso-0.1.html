@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Piccaso-0.1: Is Painting Easier Than Pixels?</title>
+<style>
+  @page { size: A4; margin: 18mm 17mm 18mm 17mm; }
+  :root { --ink: #1d1d1f; --muted: #6e6e73; --accent: #d9480f; --blue: #1c7ed6; --rule: #e5e5ea; --bg: #fafaf7; }
+  * { box-sizing: border-box; }
+  body { font-family: Georgia, "Charter", "Iowan Old Style", serif; color: var(--ink); font-size: 10.6pt; line-height: 1.55; margin: 0; }
+  h1, h2, h3, .sans, table, figcaption, .meta, .callout, .abstract h4, .toc { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  h1 { font-size: 25pt; line-height: 1.15; margin: 0 0 4px; letter-spacing: -0.4px; }
+  .subtitle { font-family: "Segoe UI", Arial, sans-serif; font-size: 13pt; color: var(--muted); margin: 0 0 14px; }
+  .meta { font-size: 9.2pt; color: var(--muted); margin-bottom: 18px; }
+  .meta b { color: var(--ink); }
+  h2 { font-size: 14.5pt; margin: 26px 0 8px; padding-top: 6px; border-top: 2px solid var(--ink); page-break-after: avoid; }
+  h2 .n { color: var(--accent); margin-right: 8px; }
+  h3 { font-size: 11pt; margin: 16px 0 6px; page-break-after: avoid; }
+  p { margin: 0 0 9px; text-align: justify; hyphens: auto; }
+  .abstract { background: var(--bg); border-left: 3px solid var(--accent); padding: 12px 16px; margin: 6px 0 16px; }
+  .abstract h4 { margin: 0 0 6px; font-size: 9.5pt; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); }
+  .callout { background: #fff4e6; border: 1px solid #ffd8a8; border-radius: 6px; padding: 9px 13px; font-size: 9.3pt; margin: 10px 0 14px; }
+  .callout b { color: var(--accent); }
+  table { border-collapse: collapse; width: 100%; font-size: 8.8pt; margin: 8px 0 14px; page-break-inside: avoid; }
+  th { text-align: left; border-bottom: 1.5px solid var(--ink); padding: 4px 6px; font-weight: 600; }
+  td { border-bottom: 1px solid var(--rule); padding: 3.5px 6px; vertical-align: top; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.hi td { background: #fff4e6; font-weight: 600; }
+  figure { margin: 12px 0 16px; page-break-inside: avoid; text-align: center; }
+  figure img { max-width: 100%; border-radius: 3px; }
+  figure.tall img { max-height: 235mm; }
+  figure.half img { max-width: 78%; }
+  figcaption { font-size: 8.6pt; color: var(--muted); margin-top: 5px; text-align: left; line-height: 1.4; }
+  figcaption b { color: var(--ink); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  ul, ol { margin: 0 0 10px 18px; padding: 0; }
+  li { margin-bottom: 3px; }
+  code { font-family: Consolas, "SF Mono", monospace; font-size: 8.8pt; background: #f1f3f5; padding: 0 3px; border-radius: 3px; }
+  .refs { font-size: 8.6pt; line-height: 1.45; }
+  .refs li { margin-bottom: 4px; }
+  .pb { page-break-before: always; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0 16px; font-family: "Segoe UI", Arial, sans-serif; }
+  .kpi { border: 1px solid var(--rule); border-radius: 6px; padding: 8px 10px; }
+  .kpi .v { font-size: 17pt; font-weight: 700; color: var(--accent); line-height: 1.1; }
+  .kpi .l { font-size: 8pt; color: var(--muted); }
+  .diagram { display: flex; align-items: stretch; gap: 6px; justify-content: center; font-family: "Segoe UI", Arial, sans-serif; font-size: 8.2pt; margin: 10px 0 4px; }
+  .box { border: 1.5px solid var(--ink); border-radius: 6px; padding: 6px 8px; text-align: center; background: #fff; }
+  .box.a { border-color: var(--accent); background: #fff4e6; }
+  .box.b { border-color: var(--blue); background: #e7f5ff; }
+  .arrow { align-self: center; color: var(--muted); font-size: 12pt; }
+</style>
+</head>
+<body>
+
+<h1>Piccaso-0.1: Is Painting Easier Than Pixels?</h1>
+<p class="subtitle">An open, early study of a 100M-parameter model that answers a text prompt with 361 brush strokes instead of pixels</p>
+<p class="meta"><b>Shreyash Kumar Singh</b> &middot; research run with an AI coding agent (Claude) &middot; October 2026 &middot;
+weights: <b>huggingface.co/shing-dev/Piccaso-0.1</b> &middot; code and lab notebook: <b>github.com/shing1Sks/piccaso</b></p>
+
+<div class="abstract">
+<h4>Abstract</h4>
+<p>Image generators produce hundreds of thousands of pixel values per picture. A painter produces a few hundred brush strokes. This report asks a curiosity question: <i>is it easier for a small model to paint a picture than to make one?</i> We convert real images into a fixed set of 361 quadratic Bezier strokes with a differentiable renderer, train text-conditioned models to generate those strokes, and document every step, including the dead ends. Generating one stroke at a time loses clearly to <b>diffusion over the whole set of strokes</b>. The final model, <b>Piccaso-0.1</b> (102M parameters, Long-CLIP text encoder, self-conditioning, cross-attention), was trained on 232k PixelProse images for about 9.2M picture-views. On held-out captions it picks out its own caption among 200 candidates 31% of the time (chance 0.5%), performs the same on seen and unseen captions, and beats every earlier model in this project on objects and colour in a fixed prompt benchmark (right object in CLIP's top-5: 56%, right colour: 97%; style is level). The stroke format caps realism at about the quality of a quick oil sketch, and the model currently reaches roughly half of that ceiling. The whole project cost about $65 of rented GPU time. This is an early research preview: interesting, honest, and not yet useful as a product. Every number, failure and lesson is in the open notebook.</p>
+</div>
+
+<div class="callout"><b>Status: early research preview.</b> Piccaso-0.1 is under-trained by any image-model standard: 232k unique images and roughly one hour on eight consumer GPUs for the final run, against 150M images and weeks of TPU time for a mobile text-to-image model (Section 8). The learning curves were still rising when the budget ran out. Expect painterly sketches that get colour, light and layout right, and objects only some of the time.</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="v">102M</div><div class="l">parameters (fp32: 408 MB)</div></div>
+  <div class="kpi"><div class="v">361</div><div class="l">Bezier strokes per painting</div></div>
+  <div class="kpi"><div class="v">31%</div><div class="l">own-caption top-1 among 200 unseen (chance 0.5%)</div></div>
+  <div class="kpi"><div class="v">~$65</div><div class="l">total GPU rental, whole project</div></div>
+</div>
+
+<figure>
+<img src="../figures/final_prompts_wide.jpg">
+<figcaption><b>Figure 1. Piccaso-0.1, unfiltered samples.</b> Six samples per prompt, 50 DDIM steps, guidance 2. Left, top to bottom: a drawing of a cat, a sketch of a house, a drawing of an airplane, an emoji of a grinning face, a pizza on a table, a man riding a skateboard, a living room with a couch and a window, a landscape painting with trees and a river, a portrait painting of a woman, an impressionist field with flowers. Right: a black and white engraving of a ship at sea, a bird perched on a branch, a city street at night, a bowl of fruit, a close-up portrait of a smiling man, a photo of a dog, a red apple, a watermelon emoji, an oil painting of a sunset over the sea, a red bus on a street. Every tile is a render of 361 vector strokes. Doodle and emoji prompts are out of domain: the model was trained on PixelProse photos only.</figcaption>
+</figure>
+
+<h2><span class="n">1</span>The question</h2>
+<p>This project started as pure curiosity. Diffusion models learn to produce every pixel of an image. Human painters do something different: a handful of big strokes for the composition, then smaller ones for form, then a few for detail. A painting of a lighthouse at sunset is perhaps a few hundred decisions, not two hundred thousand. So: <b>if we ask a model to output brush strokes instead of pixels, is the learning problem easier?</b> Would a tiny model, trained for very little money, get further than one would expect?</p>
+<p>The appeal of the stroke representation goes beyond size. The output is a real vector painting: it re-renders sharp at any resolution, every stroke can be edited or recoloured, the painting process itself is the animation (coarse strokes first, details last), and the whole picture is about 4,000 numbers. The cost is equally clear: a few hundred opaque strokes cannot reproduce photographic detail, so the ceiling is painterly by design.</p>
+<p>We did not answer the question definitively. We did learn a lot about what makes stroke generation learnable, where it fails, and what it would take to push it further. This report is the complete record.</p>
+
+<h2><span class="n">2</span>Related work</h2>
+<p><b>Image to strokes.</b> Stroke-based rendering has a long history, from greedy painterly rendering (Hertzmann, 1998) to learned painters: <i>Learning to Paint</i> (Huang et al., 2019) trains a reinforcement-learning agent with a neural renderer, <i>Paint Transformer</i> (Liu et al., 2021) predicts stroke sets feed-forward, and <i>Stylized Neural Painting</i> (Zou et al., 2021) optimises strokes directly. All of these <i>copy a given picture</i>; none of them generates from text.</p>
+<p><b>Generating strokes.</b> <i>Sketch-RNN</i> (Ha and Eck, 2017) generates doodles pen-stroke by pen-stroke. <i>CLIPDraw</i> (Frans et al., 2021) and <i>StyleCLIPDraw</i> optimise strokes against CLIP for each prompt, which takes minutes per image. <i>Collaborative Neural Painting</i> (Dall'Asen et al., 2023) is the closest precedent: a class-conditional diffusion transformer that works directly in stroke space and found that per-parameter discrete tokens fail while diffusion over one continuous vector per stroke works. Vector-graphics generators (IconShop, StrokeNUWA, OmniSVG) target icons and SVG with large language models.</p>
+<p><b>Diffusion and text conditioning.</b> We use a DiT-style transformer (Peebles and Xie, 2023) with adaLN conditioning, v-prediction and a cosine schedule, DDIM sampling (Song et al., 2021), classifier-free guidance (Ho and Salimans, 2022), self-conditioning (Chen et al., 2022, "Analog Bits"), and PixArt-style cross-attention to caption tokens (Chen et al., 2023). Text comes from CLIP (Radford et al., 2021) and later Long-CLIP (Zhang et al., 2024), which extends CLIP's 77-token limit to 248.</p>
+<p><b>Captions and data.</b> DALL-E 3 (Betker et al., 2023) showed that detailed synthetic captions substantially improve prompt following. We use PixelProse (Singla et al., 2024; Gemini captions for web images), DOCCI (Onoe et al., 2024; long human descriptions) as a test set, and earlier COCO, QuickDraw, WikiArt, Cleveland Museum of Art, PD12M and emoji sets with Florence-2 captions (Xiao et al., 2024). The efficiency comparison in Section 8 uses MobileDiffusion (Zhao et al., 2023).</p>
+
+<h2><span class="n">3</span>The stroke representation</h2>
+<p>Each stroke is a quadratic Bezier curve with 11 numbers: start, control and end point (6), width (1), RGB colour (3) and an on/off bit. Strokes are opaque with a fixed soft edge and are painted in order with a differentiable rasteriser (<code>batched.py</code>). To turn a real image into strokes we fit them by gradient descent against the image, coarse to fine.</p>
+<p>Three findings shaped everything that followed:</p>
+<ol>
+<li><b>Order and layout decide learnability.</b> Our first generator, a small GPT writing strokes number by number in fitting order, produced scribbles: the start points were almost unpredictable (negative log-likelihood 4.69 against 4.85 for a uniform guess), because fitting places strokes in random order and each curve can be written in either direction. Fixing this in the representation, not the model, was the breakthrough: <b>165 anchored slots</b> on 4x4, 7x7 and 10x10 grids, each with a keep bit and a canonical direction.</li>
+<li><b>A detail layer pays off for photographs.</b> Adding 196 small strokes on a 14x14 grid, fitted at 256 px on top of the base (361 slots in total), raised fitted quality by 1.3 to 2.9 dB on every source. A windowed renderer makes this layer exact and 16x faster.</li>
+<li><b>Measure the ceiling first.</b> Before asking "is the model good", ask "can the strokes even show it". We score the <i>fitted</i> strokes of real images with CLIP: if CLIP cannot find the caption from the fitted painting, no model can. Figure 2 shows the ceiling across sources.</li>
+</ol>
+<figure class="half">
+<img src="../figures/fig_ceiling.png">
+<figcaption><b>Figure 2. The ceiling of the stroke format.</b> Can CLIP pick the right caption (out of 150 from the same source) from the real photo, from its 165 fitted strokes, and from its 361 fitted strokes? PixelProse captions survive the stroke format best; WikiArt and Cleveland captions were mostly titles and metadata, which no painting can show.</figcaption>
+</figure>
+<figure>
+<img src="../figures/data_pixelprose_strokes_1.jpg" style="max-height:105mm">
+<figcaption><b>Figure 3. Training data.</b> Real PixelProse image (left) and its 361 fitted strokes (right), with the Gemini caption. The stroke version keeps composition, light, colour and most objects; fine texture and text are lost.</figcaption>
+</figure>
+
+<h2><span class="n">4</span>Two ways to paint</h2>
+<div class="diagram">
+  <div class="box">prompt</div><div class="arrow">&rarr;</div>
+  <div class="box">Long-CLIP<br>(pooled + 248 tokens)</div><div class="arrow">&rarr;</div>
+  <div class="box b"><b>Arm B</b>: denoise all 361 strokes together<br>(set diffusion transformer, 25-50 steps)</div><div class="arrow">&rarr;</div>
+  <div class="box">361 strokes</div><div class="arrow">&rarr;</div>
+  <div class="box">fixed renderer<br>(PNG / SVG)</div>
+</div>
+<div class="diagram">
+  <div class="box a"><b>Arm A</b>: one stroke at a time, causal transformer + flow head, sees a 32 px render of its canvas so far</div>
+</div>
+<p>We trained both arms on identical data. <b>Arm A</b> is the intuitive "painter": it places one stroke at a time and looks at its canvas. <b>Arm B</b> treats the 361 strokes as a set and denoises all of them together, like an image diffusion model over a 361 x 11 "image".</p>
+<p>A memorisation test (each training picture gets its own id) showed that both arms can redraw their training pictures almost exactly (64 pictures: B 26-28 dB, A 31 dB, all identified; 1,024 pictures: B 99%, A 92%), so the loss is sound and the problem is generalisation. With text and real data, B won every time:</p>
+<table>
+<tr><th>Data</th><th>Arm A (stroke by stroke)</th><th>Arm B (set diffusion)</th></tr>
+<tr><td>16k sketches and emoji, class labels (classifier accuracy)</td><td>0.40-0.80</td><td><b>0.97</b></td></tr>
+<tr><td>6.5k mixed images, CLIP captions (top-1 of 96)</td><td>0.000</td><td><b>0.042</b></td></tr>
+<tr><td>96k mixed images (CLIP gap, 500 held-out)</td><td>0.0108</td><td><b>0.0245</b> (58M)</td></tr>
+</table>
+<p>Why: B sees and revises every stroke at every denoising step, so an early mistake can be undone. A commits to each stroke once; its errors compound inside a picture (visible in the memorisation sheets as snowballing artefacts), and it was data-starved at every scale we tried. Arm A is retired, not deleted: the stroke-by-stroke angle remains interesting for animation and interactivity.</p>
+
+<h2><span class="n">5</span>Data: quality beat quantity</h2>
+<p><b>Round one: a mixed 96k set.</b> QuickDraw doodles, four emoji and icon sets, COCO scenes plus object and face crops, Cleveland Museum of Art, WikiArt and PD12M, captioned with Florence-2 and filtered with CLIP. The best model drew its first recognisable objects (smileys, houses, apples, red buses) but analysis showed that about 35% of the data carried captions that barely describe the picture (WikiArt "genre painting, Impressionism", museum titles, generic face-crop captions). Doubling this data gave only +4%.</p>
+<p><b>Round two: PixelProse only.</b> PixelProse provides dense Gemini captions for web images ("A red chili pepper. It is oriented vertically. The chili pepper is in front of a large flame. The background is black..."). A probe on 1.5k images per candidate dataset (Figure 2) made the choice obvious. The final pipeline:</p>
+<ul>
+<li>2 PixelProse caption files, filtered: no watermark or text overlay, aesthetic score at least 5, short side at least 256 px, low toxicity: 418,981 URLs.</li>
+<li>Download and fit 361 strokes on 8 RTX 5090s: 309,512 images (74% of links alive), mean fit 23.45 dB at 256 px.</li>
+<li><b>"Survives strokes" filter</b>: score each pair by Long-CLIP similarity between the caption and the rendered strokes, drop the worst 25%: <b>232,134 training pairs</b>. This removes exactly the pairs the model cannot connect (text-heavy images, tiny details, clutter), at the cost of some busy real photos.</li>
+<li>Each item trains on its full caption, first sentence and first two sentences, so short prompts work too. DOCCI (1,500 images, human captions) is kept as a test set only.</li>
+</ul>
+<figure>
+<img src="../figures/data_survive_filter.jpg" style="max-height:80mm">
+<figcaption><b>Figure 4. The survives-strokes filter.</b> Top two rows kept, bottom two dropped. It reliably removes charts and text-heavy images, and also drops some cluttered but valid scenes.</figcaption>
+</figure>
+
+<h2><span class="n">6</span>What moved the needle</h2>
+<p>Every lever was measured in isolation with the same evaluation: generate a painting for each held-out caption, then check with CLIP ViT-B/32 whether the painting matches its own caption better than the others (top-1 retrieval and the <i>CLIP gap</i>, own-caption similarity minus other-caption similarity). Figure 5 summarises the effect sizes.</p>
+<figure class="half">
+<img src="../figures/fig_levers.png">
+<figcaption><b>Figure 5. Effect of each lever on the CLIP gap</b>, measured separately. The cheapest changes were the most valuable: sampler guidance, the training recipe (a missing learning-rate decay), self-conditioning and generating base and detail strokes jointly. The number of denoising steps did not matter at all (25 = 250).</figcaption>
+</figure>
+<table>
+<tr><th>Experiment</th><th>Result</th><th>Decision</th></tr>
+<tr><td>Denoising steps 25 / 50 / 100 / 250</td><td>gap 0.0241 / 0.0242 / 0.0235 / 0.0242</td><td>25 steps</td></tr>
+<tr><td>Guidance 2 -> 3 -> 4</td><td>+18% / +29%</td><td>use 3-4</td></tr>
+<tr><td>Learning-rate decay + batch 256 (bug fix)</td><td>+12% (58M), +9% (22M)</td><td>new recipe</td></tr>
+<tr><td>Data 25% -> 50% -> 100% (old mix)</td><td>+19%, then +4%</td><td>quality over volume</td></tr>
+<tr><td>Separate detail model on top of the base</td><td>never beat the base alone against real pictures</td><td>dropped</td></tr>
+<tr><td>Base and detail generated jointly (361 slots)</td><td>+7-10% overall; faces +64%, Cleveland +40%</td><td>keep</td></tr>
+<tr><td>Self-conditioning</td><td>+7-8%, every source</td><td>keep</td></tr>
+<tr><td>Model sees its own 64 px render each step</td><td>+4% at guidance 2, equal at 3-4, 1.9x the cost</td><td>dropped (for now)</td></tr>
+<tr><td>Cross-attention to caption tokens (short captions)</td><td>+4-5%</td><td>keep for long captions</td></tr>
+<tr><td>565 instead of 361 slots (fitted ceiling)</td><td>+1 dB, +3% caption match</td><td>stay at 361</td></tr>
+</table>
+<h3>Scaling check: 25M vs 100M vs 250M</h3>
+<p>Same data, settings and number of steps for all three sizes, scored at matching checkpoints. 100M clearly beats 25M (+13% at 8k steps). 250M was only +2% at 2.7k steps and level on the prompt benchmark at 5.3k steps, while costing 2.5x per step. At this data scale, 100M is the right size; a larger model should pay off only with much more data.</p>
+<figure class="half">
+<img src="../figures/fig_scaling.png">
+<figcaption><b>Figure 6. Scaling check</b> on 232k PixelProse images (CLIP gap on 1,000 held-out captions, guidance 3).</figcaption>
+</figure>
+
+<h2 class="pb"><span class="n">7</span>Piccaso-0.1</h2>
+<table>
+<tr><th>Component</th><th>Choice</th></tr>
+<tr><td>Output</td><td>361 strokes x 11 numbers (165 base on 4x4/7x7/10x10 grids + 196 detail on 14x14)</td></tr>
+<tr><td>Network</td><td>set diffusion transformer, width 640, 11 layers, 10 heads, adaLN, 102M parameters</td></tr>
+<tr><td>Text</td><td>Long-CLIP-B (frozen): pooled vector via adaLN + cross-attention to up to 248 caption tokens</td></tr>
+<tr><td>Extras</td><td>self-conditioning; 25% of training steps conditioned on the reference image's Long-CLIP vector</td></tr>
+<tr><td>Objective</td><td>v-prediction, cosine schedule, slot loss weights 3 / 1.5 / 1 / 1 (coarse to detail)</td></tr>
+<tr><td>Training</td><td>8k steps at batch 256 (2 GPUs), then 7k steps at batch 1,024 (8 GPUs, lr 5e-4, cosine): ~9.2M picture-views, about 40 passes over 220k training images</td></tr>
+<tr><td>Sampling</td><td>DDIM, 25 steps, guidance 3, stroke count copied from a random real painting</td></tr>
+</table>
+<h3>Seen, unseen and a different source</h3>
+<p>To check generalisation we drew 200 captions from the training set, 200 held-out captions and 200 DOCCI images with long human-written captions from a different photo source. For each we score the real photo, its fitted strokes (the ceiling) and Piccaso's painting.</p>
+<table>
+<tr><th>Caption retrieval among 200 (top-1 / CLIP gap)</th><th class="num">Real photo</th><th class="num">Fitted 361 strokes</th><th class="num">Piccaso-0.1</th></tr>
+<tr><td>Seen: training captions</td><td class="num">96.5% / 0.191</td><td class="num">83.5% / 0.142</td><td class="num">28.5% / 0.072</td></tr>
+<tr class="hi"><td>Unseen: held-out PixelProse captions</td><td class="num">98.0% / 0.194</td><td class="num">87.5% / 0.146</td><td class="num">31.0% / 0.069</td></tr>
+<tr><td>DOCCI: other source, human captions</td><td class="num">80.0% / 0.151</td><td class="num">n/a</td><td class="num">9.5% / 0.046</td></tr>
+</table>
+<figure class="half">
+<img src="../figures/fig_seen_unseen.png">
+<figcaption><b>Figure 7.</b> The model performs the same on captions it trained on and captions it never saw: it generalises rather than memorises. A different photo source with long human captions is much harder.</figcaption>
+</figure>
+<figure>
+<img src="../figures/eval_unseen_wide.jpg">
+<figcaption><b>Figure 8. Unseen captions.</b> Columns: real photo, its fitted 361 strokes (what the format can show), two Piccaso-0.1 paintings from the caption alone (25 steps, guidance 3). The model gets subject, palette and layout right; identity, text and fine shape are beyond it today.</figcaption>
+</figure>
+<h3>StrokeBench</h3>
+<p>CLIP retrieval is a coarse compass, so we also built StrokeBench: 200 fixed prompts in four groups (80 single objects, 40 colour plus object, 40 two-object scenes, 40 styles), each checked by CLIP multiple choice.</p>
+<table>
+<tr><th>StrokeBench (4 samples per prompt)</th><th class="num">chance</th><th class="num">A1 (22M, old data)</th><th class="num">B-58M (old data)</th><th class="num">Piccaso-0.1</th></tr>
+<tr><td>Right object, top-1 of 80</td><td class="num">1.3%</td><td class="num">18.1%</td><td class="num">22.5%</td><td class="num"><b>30.3%</b></td></tr>
+<tr><td>Right object, top-5 of 80</td><td class="num">6.3%</td><td class="num">45.0%</td><td class="num">50.6%</td><td class="num"><b>56.3%</b></td></tr>
+<tr><td>Right colour (of 10)</td><td class="num">10%</td><td class="num">82.5%</td><td class="num">80.0%</td><td class="num"><b>96.9%</b></td></tr>
+<tr><td>Object right in colour prompts (top-5)</td><td class="num">6.3%</td><td class="num">43.8%</td><td class="num">38.8%</td><td class="num"><b>53.8%</b></td></tr>
+<tr><td>Both objects in two-object prompts (top-5)</td><td class="num">0.4%</td><td class="num">2.5%</td><td class="num">3.8%</td><td class="num"><b>4.4%</b></td></tr>
+<tr><td>Right style (of 5)</td><td class="num">20%</td><td class="num"><b>46.3%</b></td><td class="num">43.8%</td><td class="num">45.6%</td></tr>
+</table>
+<h3>Progress and speed</h3>
+<figure>
+<img src="../figures/fig_journey.png">
+<figcaption><b>Figure 9. The journey.</b> CLIP gap of the best model at each milestone. Left: the mixed 96k-image data (500 held-out captions). Right: PixelProse (1,000 held-out captions, guidance 2, 50 steps); among those 1,000 captions the final model picks its own 11.2% of the time (112x chance).</figcaption>
+</figure>
+<p>Painting speed: 0.11 s per painting on an RTX 5090 (batch 50, 25 steps) and about 93 s on a laptop CPU (Intel i7-1255U, 25 steps, no GPU). The CPU number is the honest "runs locally" figure today; few-step distillation (Section 10) is the obvious fix.</p>
+
+<h2><span class="n">8</span>How does this compare to a real image model?</h2>
+<p>It does not, yet, and the gap is mostly not about strokes. MobileDiffusion generates 512 px images on a phone in about 0.2 s, with this budget:</p>
+<table>
+<tr><th></th><th>MobileDiffusion (Zhao et al., 2023)</th><th>Piccaso-0.1</th></tr>
+<tr><td>Unique training images</td><td>150 million</td><td>232 thousand (about 650x fewer)</td></tr>
+<tr><td>Training</td><td>~1M steps on a TPU pod, plus a 15-day search on 512 TPUs</td><td>15k steps on consumer RTX 5090s, about 8 GPU-hours for this model</td></tr>
+<tr><td>Generator</td><td>386M UNet + CLIP-L + learned latent decoder</td><td>102M transformer + Long-CLIP-B + fixed stroke renderer</td></tr>
+<tr><td>Output</td><td>a learned latent (64x64x8) decoded to pixels</td><td>361 vector strokes (about 4k numbers)</td></tr>
+<tr><td>Sampling</td><td>8 steps, or 1 step after diffusion-GAN finetuning</td><td>25-50 steps x 2 for guidance (not distilled)</td></tr>
+<tr><td>Rough cost</td><td>hundreds of thousands of dollars of compute</td><td>about $65 for the entire project</td></tr>
+</table>
+<p>Strokes do cost something: the fitted ceiling caps realism, and a set of overlapping strokes lacks the grid structure that convolutions exploit. But the dominant differences are data (650x) and compute (roughly 1000x). The useful lessons to borrow are few-step distillation, a hierarchy-aware network (attention only at coarse levels) and simply more data.</p>
+
+<h2><span class="n">9</span>Limitations</h2>
+<ul>
+<li><b>Two objects in one picture</b> almost never work (4% on StrokeBench). Relations ("a cat next to a vase") need much more data and probably a stronger text pathway.</li>
+<li><b>Identity, text and fine shape</b> are out of reach: partly the 361-stroke ceiling, partly under-training.</li>
+<li><b>Doodle and emoji styles</b> are weak because the base was deliberately trained on PixelProse only; a small add-on (LoRA) on the existing strokes data is the plan.</li>
+<li><b>Evaluation uses CLIP</b>, which can be fooled and ignores aesthetics. StrokeBench and the sheets are the sanity check; a human study is future work.</li>
+<li><b>Data rights.</b> PixelProse captions are CC-BY-4.0, the images belong to their owners. We release weights and code, not the derived stroke dataset.</li>
+</ul>
+
+<h2><span class="n">10</span>Where to go from here</h2>
+<p>The learning curve (Figure 10) followed a clean power law in training pictures seen (about +15% CLIP gap per doubling). Projected with fresh data:</p>
+<table>
+<tr><th>Plan</th><th class="num">New images</th><th class="num">Steps at batch 1,024</th><th class="num">Est. cost</th><th class="num">Projected gap</th><th class="num">Projected top-1 of 1,000</th></tr>
+<tr><td>Today</td><td class="num">-</td><td class="num">~9k equiv.</td><td class="num">-</td><td class="num">0.0595</td><td class="num">11%</td></tr>
+<tr><td>Same data, +20k steps</td><td class="num">0</td><td class="num">~29k</td><td class="num">~$9</td><td class="num">0.065-0.070</td><td class="num">13-16%</td></tr>
+<tr class="hi"><td>+500k images</td><td class="num">500k</td><td class="num">50k</td><td class="num">~$55-60</td><td class="num">0.075-0.085</td><td class="num">17-22%</td></tr>
+<tr><td>+1M images</td><td class="num">1M</td><td class="num">60k</td><td class="num">~$95</td><td class="num">0.080-0.090</td><td class="num">20-25%</td></tr>
+</table>
+<figure class="half">
+<img src="../figures/fig_learning_curve.png">
+<figcaption><b>Figure 10. Learning curve and projection.</b> Measured points on PixelProse and a projection band (exponent 0.15-0.25), against the fitted-stroke ceiling. Extrapolations are uncertain (about +/-30% on the gains).</figcaption>
+</figure>
+<p>Beyond scale, in order of value per effort: <b>few-step distillation</b> (4-8 steps, guidance baked in) for laptop and phone speed; <b>a 512 px finishing layer</b> fitted where the error is high, generated by a small <b>cascade finisher</b> that looks at the rendered base painting; <b>variable opacity and edge softness</b> for glazes, skin and glow; a <b>hierarchy-aware network</b> with full attention on coarse strokes and local attention on detail; and a larger model once the data reaches millions of images. PixelProse alone has about 8M more usable images.</p>
+
+<h2><span class="n">11</span>Process notes</h2>
+<p>All experiments ran on rented consumer GPUs (Vast.ai RTX 3090/4090/5090, a RunPod A40 early on). Every full run was preceded by small dry runs, which caught real bugs each time: a duplicate filter that merged different doodles, an inverted watermark filter, a missing learning-rate decay, out-of-memory errors that only real captions triggered. We also lost about $6.50 of GPU time to operational mistakes (a kill command that also killed follow-up jobs, a fork-after-CUDA deadlock, an idle box after a silent destroy failure), which led to a hard rule: audit every rented GPU every 10 minutes. The full lab notebook, with every plan, result and decision in order, is in the repository (<code>notebook/</code>).</p>
+
+<h2>References</h2>
+<ol class="refs">
+<li>Betker, J. et al. Improving Image Generation with Better Captions (DALL-E 3). OpenAI, 2023.</li>
+<li>Chen, J. et al. PixArt-alpha: Fast Training of Diffusion Transformer for Photorealistic Text-to-Image Synthesis. arXiv:2310.00426, 2023.</li>
+<li>Chen, T., Zhang, R., Hinton, G. Analog Bits: Generating Discrete Data using Diffusion Models with Self-Conditioning. arXiv:2208.04202, 2022.</li>
+<li>Dall'Asen, N. et al. Collaborative Neural Painting. arXiv:2312.01800, 2023.</li>
+<li>Frans, K., Soros, L., Witkowski, O. CLIPDraw: Exploring Text-to-Drawing Synthesis through Language-Image Encoders. arXiv:2106.14843, 2021.</li>
+<li>Ha, D., Eck, D. A Neural Representation of Sketch Drawings (Sketch-RNN). arXiv:1704.03477, 2017.</li>
+<li>Hertzmann, A. Painterly Rendering with Curved Brush Strokes of Multiple Sizes. SIGGRAPH, 1998.</li>
+<li>Ho, J., Salimans, T. Classifier-Free Diffusion Guidance. arXiv:2207.12598, 2022.</li>
+<li>Huang, Z., Heng, W., Zhou, S. Learning to Paint with Model-based Deep Reinforcement Learning. ICCV, 2019.</li>
+<li>Liu, S. et al. Paint Transformer: Feed Forward Neural Painting with Stroke Prediction. ICCV, 2021.</li>
+<li>Onoe, Y. et al. DOCCI: Descriptions of Connected and Contrasting Images. arXiv:2404.19753, 2024.</li>
+<li>Peebles, W., Xie, S. Scalable Diffusion Models with Transformers (DiT). ICCV, 2023.</li>
+<li>Pont-Tuset, J. et al. Connecting Vision and Language with Localized Narratives. ECCV, 2020.</li>
+<li>Radford, A. et al. Learning Transferable Visual Models From Natural Language Supervision (CLIP). ICML, 2021.</li>
+<li>Singla, V. et al. From Pixels to Prose: A Large Dataset of Dense Image Captions (PixelProse). arXiv:2406.10328, 2024.</li>
+<li>Song, J., Meng, C., Ermon, S. Denoising Diffusion Implicit Models. ICLR, 2021.</li>
+<li>Xiao, B. et al. Florence-2: Advancing a Unified Representation for a Variety of Vision Tasks. CVPR, 2024.</li>
+<li>Zhang, B. et al. Long-CLIP: Unlocking the Long-Text Capability of CLIP. ECCV, 2024.</li>
+<li>Zhao, Y. et al. MobileDiffusion: Instant Text-to-Image Generation on Mobile Devices. arXiv:2311.16567, 2023.</li>
+<li>Zou, Z. et al. Stylized Neural Painting. CVPR, 2021.</li>
+</ol>
+
+</body>
+</html>

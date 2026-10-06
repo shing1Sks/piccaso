@@ -1,0 +1,47 @@
+[
+ {
+  "name": "lighthouse",
+  "prompt": "a lighthouse on a cliff at sunset, oil painting",
+  "svg": "paint_lighthouse.svg"
+ },
+ {
+  "name": "ship",
+  "prompt": "a sailing ship on a stormy sea, oil painting",
+  "svg": "paint_ship.svg"
+ },
+ {
+  "name": "city",
+  "prompt": "a city street at night with glowing lights",
+  "svg": "paint_city.svg"
+ },
+ {
+  "name": "sunflowers",
+  "prompt": "a field of sunflowers under a blue sky",
+  "svg": "paint_sunflowers.svg"
+ },
+ {
+  "name": "fruit",
+  "prompt": "a bowl of oranges on a wooden table",
+  "svg": "paint_fruit.svg"
+ },
+ {
+  "name": "room",
+  "prompt": "a cozy living room with a big window and plants",
+  "svg": "paint_room.svg"
+ },
+ {
+  "name": "portrait",
+  "prompt": "an oil painting portrait of an old man with a beard",
+  "svg": "paint_portrait.svg"
+ },
+ {
+  "name": "bus",
+  "prompt": "a red bus on a city street",
+  "svg": "paint_bus.svg"
+ },
+ {
+  "name": "fitted",
+  "caption": "This image displays: A seascape with a small island in the center left. The island has a lighthouse on it. There are two other lighthouses in the distance. The sky is cloudy and the sea is rough with white caps. There is a white railing in the foreground. The image is in full color and appears to be a photograph taken from a boat.",
+  "id": "pp_dde0360bb403fd6baa297829b189d43e32601075466e58c25d96e5687affe235"
+ }
+]

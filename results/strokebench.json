@@ -1,0 +1,21 @@
+{
+ "objects": 0.3031,
+ "objects_top5": 0.5625,
+ "colour_obj": 0.5375,
+ "colour": 0.9688,
+ "two_both": 0.0437,
+ "two_any": 0.4875,
+ "style": 0.4562,
+ "chance": {
+  "objects": 0.0125,
+  "objects_top5": 0.0625,
+  "colour": 0.1,
+  "style": 0.2,
+  "two_both": 0.0039
+ },
+ "ckpt": "ckpt.pt",
+ "per": 4,
+ "steps": 25,
+ "cfg": 3.0,
+ "n_prompts": 200
+}
